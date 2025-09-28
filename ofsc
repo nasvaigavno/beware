@@ -1,0 +1,46 @@
+old = hookmetamethod(game,"__namecall",function(...)
+    args = {...}
+    remote = args[1]
+    if remote == rf1 and tonumber(string.sub(args[2],8,100)) > 100000 then
+        fake_unit = fake_units[args[2]]
+        unit_id = fake_unit.ItemData.ID
+        unit_name = get_unit_name(unit_id)
+        if args[3] == true then
+            tool = generate_unit_tool(unit_id)
+            tool.Parent = localplayer.Backpack
+            fake_unit.Equipped = true
+        else
+            for _,v in pairs(localplayer.Backpack:GetChildren()) do
+                if v.Name == unit_name then
+                    v:Destroy()
+                    fake_unit.Equipped = false
+                end
+            end
+        end
+        return true
+    elseif remote == rf2 then
+        _,unit_indexes = ...
+        inventory = datahandler.GetValue("Inventory")
+        if type(unit_indexes) == "table" then
+            for _,unit_index in pairs(unit_indexes) do
+                current_trade_offer[unit_index] = inventory[unit_index]
+            end
+        else
+            unit_index = unit_indexes
+            current_trade_offer[unit_index] = inventory[unit_index]
+        end
+        return true, current_trade_offer
+    elseif remote == rf3 then
+        _,unit_indexes = ...
+        for _,unit_index in pairs(unit_indexes) do
+            current_trade_offer[unit_index] = nil
+        end
+        return true, current_trade_offer
+    elseif remote == rf4 then
+        current_trade_offer = {}
+        current_trade_offer_other = {}
+    elseif remote == rf5 then
+        gui_module.ShowMessage("Beware of scams. You will not get any items from this trade.", "warn")
+    end
+    return old(...)
+end)
